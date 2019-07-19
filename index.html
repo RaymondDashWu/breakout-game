@@ -170,7 +170,7 @@
 
             }
             reset() {
-                
+
             }
         }
 
@@ -229,8 +229,8 @@
                 for (let r = 0; r < brickRowCount; r++) {
                     let b = bricks[c][r];
                     if (b.status == 1) {
-                        if (x > b.x && x < b.x + newBrick.width && y > b.y && y < b.y + newBrick.height) {
-                            dy = -dy
+                        if (newBall.x > b.x && newBall.x < b.x + newBrick.width && newBall.y > b.y && newBall.y < b.y + newBrick.height) {
+                            newBall.dy = -newBall.dy
                             b.status = 0;
                             score++;
                             if (score == brickRowCount * brickColumnCount) {
