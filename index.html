@@ -61,8 +61,8 @@
             }
 
             render(ctx) {
-                for (let c = 0; c < brickColumnCount; c++) {
-                    for (let r = 0; r < brickRowCount; r++) {
+                for (let c = 0; c < brickColumnCount; c += 1) {
+                    for (let r = 0; r < brickRowCount; r += 1) {
                         if (bricks[c][r].status == 1) {
                             // if (c % 2 == 0) { // Uncomment this line and comment below line to have different colors per column
                             if (r % 2 == 0) {
@@ -109,8 +109,13 @@
         }
 
         class Background {
-            constructor() {
-                // TODO
+            constructor(color) {
+                this.color = color;
+            }
+
+            render(ctx) {
+                ctx.fillStyle = this.color;
+                // ctx.fill();
             }
         }
 
@@ -126,29 +131,35 @@
                 ctx.fillText("Score: " + this.score, 8, 20);
             }
             update(points) {
-
+                // TODO
             }
             reset() {
-
+                if (this.score == brickRowCount * brickColumnCount) {
+                    alert("You Win!");
+                    document.location.reload();
+                }
             }
         }
 
         class Lives {
             constructor(color, lives, font) {
-                this.x = 0;
-                this.y = 0;
                 this.color = color;
                 this.lives = lives;
                 this.font = font;
+                this.x = 0;
+                this.y = 0;
             }
             render(ctx) {
-                ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+                ctx.fillText("Lives: " + this.lives, canvas.width - 65, 20);
             }
             loseLife() {
-
+                // TODO
             }
             reset() {
-
+                if (!this.lives) {
+                        // alert("GAME OVER"); // Commented out for testing
+                        document.location.reload();
+                    }
             }
         }
 
@@ -169,16 +180,14 @@
         let brickColorA = getRandomColor();
         let brickColorB = getRandomColor();
 
-        let lives = 3;
-
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
         document.addEventListener("mousemove", mouseMoveHandler, false);
 
         const bricks = [];
-        for (let c = 0; c < brickColumnCount; c++) {
+        for (let c = 0; c < brickColumnCount; c += 1) {
             bricks[c] = [];
-            for (let r = 0; r < brickRowCount; r++) {
+            for (let r = 0; r < brickRowCount; r += 1) {
                 bricks[c][r] = {
                     x: 0,
                     y: 0,
@@ -187,16 +196,14 @@
             }
         }
 
-
         const newBall = new Ball(10, x, y, 2, -2);
         const newBrick = new Brick(75, 20);
         const newPaddle = new Paddle(75, 10);
         const newScore = new Score("#0095DD", 0, "16px Arial")
-        const newLives = new Lives("#0095DD", lives, "16px Arial")
+        const newLives = new Lives("#0095DD", 3, "16px Arial")
+        const newBackground = new Background("#0095DD")
 
         let paddleX = (canvas.width - newPaddle.width) / 2;
-
-
 
         function keyDownHandler(e) {
             if (e.key == "Right" || e.key == "ArrowRight") {
@@ -228,19 +235,16 @@
 
         // TODO: there's a bug where your ball will go through the paddle after seemingly 3 hits?
         function collisionDetection() {
-            for (let c = 0; c < brickColumnCount; c++) {
-                for (let r = 0; r < brickRowCount; r++) {
+            for (let c = 0; c < brickColumnCount; c += 1) {
+                for (let r = 0; r < brickRowCount; r += 1) {
                     let b = bricks[c][r];
                     if (b.status == 1) {
-                        if (newBall.x > b.x && newBall.x < b.x + newBrick.width && newBall.y > b.y && newBall.y < b.y + newBrick.height) {
+                        if (newBall.x > b.x && newBall.x < b.x + newBrick.width && newBall.y > b.y && newBall.y < b.y +
+                            newBrick.height) {
                             newBall.dy = -newBall.dy
                             newBall.color = getRandomColor();
                             b.status = 0;
-                            newScore.score++;
-                            if (newScore.score == brickRowCount * brickColumnCount) {
-                                alert("You Win!");
-                                document.location.reload();
-                            }
+                            newScore.score += 1;
                         }
                     }
                 }
@@ -249,20 +253,32 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            newBackground.render(ctx);
+            console.log(newBackground);
+
             newBall.render(ctx);
             newBall.move();
+
             newBrick.render(ctx);
+
             newPaddle.render(ctx);
+
             newScore.render(ctx);
+            newScore.update();
+            newScore.reset();
+
             collisionDetection();
+            
             newLives.render(ctx);
+            newLives.loseLife();
+            newLives.reset();
 
             if (newBall.y + newBall.dy < newBall.radius) {
                 newBall.dy = -newBall.dy;
                 newBall.color = getRandomColor();
                 ctx.fill();
             }
-
             if (newBall.x + newBall.dx < newBall.radius || newBall.x + newBall.dx > canvas.width - newBall.radius) {
                 newBall.dx = -newBall.dx;
                 newBall.color = getRandomColor();
@@ -273,17 +289,17 @@
                     newBall.color = getRandomColor();
                     ctx.fill();
                 } else {
-                    lives--;
-                    if (!lives) {
-                        // alert("GAME OVER");
-                        document.location.reload();
-                    } else {
-                        newBall.x = canvas.width / 2;
-                        newBall.y = canvas.height - 30;
-                        newBall.dx = 2;
-                        newBall.dy = -2;
-                        paddleX = (canvas.width - newPaddle.width) / 2;
-                    }
+                    newLives.lives -= 1;
+                    // if (!newLives.lives) {
+                    //     // alert("GAME OVER");
+                    //     document.location.reload();
+                    // } else {
+                    newBall.x = canvas.width / 2;
+                    newBall.y = canvas.height - 30;
+                    newBall.dx = 2;
+                    newBall.dy = -2;
+                    paddleX = (canvas.width - newPaddle.width) / 2;
+                    // }
 
                 }
             }
