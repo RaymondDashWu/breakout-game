@@ -47,6 +47,17 @@
             move() {
                 this.x += this.dx
                 this.y += this.dy
+                if (this.y + this.dy < this.radius) {
+                    this.dy = -this.dy;
+                    this.color = getRandomColor();
+                    ctx.fill();
+                }
+                if (this.x + this.dx < this.radius || this.x + this.dx > canvas.width - this
+                    .radius) {
+                    this.dx = -this.dx;
+                    this.color = getRandomColor();
+                    ctx.fill();
+                }
             }
         }
 
@@ -153,13 +164,25 @@
                 ctx.fillText("Lives: " + this.lives, canvas.width - 65, 20);
             }
             loseLife() {
-                // TODO
+                // if (newBall.y + newBall.dy > canvas.height - newBall.radius) {
+                //     this.lives -= 1;
+                    // if (!newLives.lives) {
+                    //     // alert("GAME OVER");
+                    //     document.location.reload();
+                    // } else {
+                    // newBall.x = canvas.width / 2;
+                    // newBall.y = canvas.height - 30;
+                    // newBall.dx = 2;
+                    // newBall.dy = -2;
+                    // paddleX = (canvas.width - newPaddle.width) / 2;
+                    // }
+                // }
             }
             reset() {
                 if (!this.lives) {
-                        // alert("GAME OVER"); // Commented out for testing
-                        document.location.reload();
-                    }
+                    // alert("GAME OVER"); // Commented out for testing
+                    document.location.reload();
+                }
             }
         }
 
@@ -253,7 +276,7 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
             newBackground.render(ctx);
             console.log(newBackground);
 
@@ -269,21 +292,12 @@
             newScore.reset();
 
             collisionDetection();
-            
+
             newLives.render(ctx);
             newLives.loseLife();
             newLives.reset();
 
-            if (newBall.y + newBall.dy < newBall.radius) {
-                newBall.dy = -newBall.dy;
-                newBall.color = getRandomColor();
-                ctx.fill();
-            }
-            if (newBall.x + newBall.dx < newBall.radius || newBall.x + newBall.dx > canvas.width - newBall.radius) {
-                newBall.dx = -newBall.dx;
-                newBall.color = getRandomColor();
-                ctx.fill();
-            } else if (newBall.y + newBall.dy > canvas.height - newBall.radius) {
+            if (newBall.y + newBall.dy > canvas.height - newBall.radius) {
                 if (newBall.x > paddleX && x < paddleX + newPaddle.width) {
                     newBall.dy = -newBall.dy
                     newBall.color = getRandomColor();
