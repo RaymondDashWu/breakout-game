@@ -123,8 +123,6 @@
                 this.y = 0;
             }
             render(ctx) {
-                // ctx.font = "16px Arial";
-                // ctx.fillStyle = "#0095DD";
                 ctx.fillText("Score: " + this.score, 8, 20);
             }
             update(points) {
@@ -136,11 +134,15 @@
         }
 
         class Lives {
-            constructor() {
-
+            constructor(color, lives, font) {
+                this.x = 0;
+                this.y = 0;
+                this.color = color;
+                this.lives = lives;
+                this.font = font;
             }
             render(ctx) {
-
+                ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
             }
             loseLife() {
 
@@ -190,14 +192,11 @@
         const newBrick = new Brick(75, 20);
         const newPaddle = new Paddle(75, 10);
         const newScore = new Score("#0095DD", 0, "16px Arial")
+        const newLives = new Lives("#0095DD", lives, "16px Arial")
 
         let paddleX = (canvas.width - newPaddle.width) / 2;
 
-        function drawLives() {
-            ctx.font = "16px Arial";
-            ctx.fillStyle = "#0095DD";
-            ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
-        }
+
 
         function keyDownHandler(e) {
             if (e.key == "Right" || e.key == "ArrowRight") {
@@ -235,6 +234,7 @@
                     if (b.status == 1) {
                         if (newBall.x > b.x && newBall.x < b.x + newBrick.width && newBall.y > b.y && newBall.y < b.y + newBrick.height) {
                             newBall.dy = -newBall.dy
+                            newBall.color = getRandomColor();
                             b.status = 0;
                             newScore.score++;
                             if (newScore.score == brickRowCount * brickColumnCount) {
@@ -255,22 +255,22 @@
             newPaddle.render(ctx);
             newScore.render(ctx);
             collisionDetection();
-            drawLives();
+            newLives.render(ctx);
 
             if (newBall.y + newBall.dy < newBall.radius) {
                 newBall.dy = -newBall.dy;
-                // ballColor = getRandomColor();
+                newBall.color = getRandomColor();
                 ctx.fill();
             }
 
             if (newBall.x + newBall.dx < newBall.radius || newBall.x + newBall.dx > canvas.width - newBall.radius) {
                 newBall.dx = -newBall.dx;
-                // ballColor = getRandomColor();
+                newBall.color = getRandomColor();
                 ctx.fill();
             } else if (newBall.y + newBall.dy > canvas.height - newBall.radius) {
                 if (newBall.x > paddleX && x < paddleX + newPaddle.width) {
                     newBall.dy = -newBall.dy
-                    // ballColor = getRandomColor();
+                    newBall.color = getRandomColor();
                     ctx.fill();
                 } else {
                     lives--;
