@@ -47,17 +47,17 @@
             move() {
                 this.x += this.dx
                 this.y += this.dy
-                if (this.y + this.dy < this.radius) {
-                    this.dy = -this.dy;
-                    this.color = getRandomColor();
-                    ctx.fill();
-                }
-                if (this.x + this.dx < this.radius || this.x + this.dx > canvas.width - this
-                    .radius) {
-                    this.dx = -this.dx;
-                    this.color = getRandomColor();
-                    ctx.fill();
-                }
+                // if (this.y + this.dy < this.radius) {
+                //     this.dy = -this.dy;
+                //     this.color = getRandomColor();
+                //     ctx.fill(); // ????
+                // }
+                // if (this.x + this.dx < this.radius || this.x + this.dx > canvas.width - this
+                //     .radius) {
+                //     this.dx = -this.dx;
+                //     this.color = getRandomColor();
+                //     ctx.fill(); // ????
+                // }
             }
         }
 
@@ -113,7 +113,8 @@
 
             render(ctx) {
                 ctx.beginPath();
-                ctx.rect(paddleX, canvas.height - this.height, this.width, this.height);
+                // ctx.fillStyle = this.color
+                ctx.rect(this.x, canvas.height - this.height, this.width, this.height);
                 ctx.fill();
                 ctx.closePath();
             }
@@ -221,7 +222,7 @@
 
         const newBall = new Ball(10, x, y, 2, -2);
         const newBrick = new Brick(75, 20);
-        const newPaddle = new Paddle(75, 10);
+        const newPaddle = new Paddle(75, 30);
         const newScore = new Score("#0095DD", 0, "16px Arial")
         const newLives = new Lives("#0095DD", 3, "16px Arial")
         const newBackground = new Background("#0095DD")
@@ -239,7 +240,7 @@
         function mouseMoveHandler(e) {
             let relativeX = e.clientX - canvas.offsetLeft;
             if (relativeX > 0 && relativeX < canvas.width) {
-                paddleX = relativeX - newPaddle.width / 2;
+                newPaddle.x = relativeX - newPaddle.width / 2;
             }
         }
 
@@ -261,9 +262,11 @@
             for (let c = 0; c < brickColumnCount; c += 1) {
                 for (let r = 0; r < brickRowCount; r += 1) {
                     let b = bricks[c][r];
-                    if (b.status == 1) {
-                        if (newBall.x > b.x && newBall.x < b.x + newBrick.width && newBall.y > b.y && newBall.y < b.y +
-                            newBrick.height) {
+                    if (b.status === 1) {
+                        if (newBall.x > b.x && 
+                        newBall.x < b.x + newBrick.width && 
+                        newBall.y > b.y && 
+                        newBall.y < b.y + newBrick.height) {
                             newBall.dy = -newBall.dy
                             newBall.color = getRandomColor();
                             b.status = 0;
@@ -278,31 +281,61 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             newBackground.render(ctx);
-            console.log(newBackground);
-
-            newBall.render(ctx);
+            // console.log(newBackground);
+            
             newBall.move();
+            newBall.render(ctx);
 
             newBrick.render(ctx);
 
             newPaddle.render(ctx);
 
-            newScore.render(ctx);
             newScore.update();
-            newScore.reset();
+            newScore.render(ctx);
+            
+            newScore.reset(); // ????
 
-            collisionDetection();
+            collisionDetection(); // ball colliudes with bricks
 
-            newLives.render(ctx);
             newLives.loseLife();
-            newLives.reset();
+            newLives.render(ctx);
+            newLives.reset(); // ????
 
-            if (newBall.y + newBall.dy > canvas.height - newBall.radius) {
-                if (newBall.x > paddleX && x < paddleX + newPaddle.width) {
-                    newBall.dy = -newBall.dy
+            // is the ball wifthin the left and right as well as height of the paddle 
+            // and below the top of the paddle and above the bottom of the paddle 
+                // deflect the ball 
+            // else is the ball below the bottom of the screen?
+                // lose a life 
+
+            // ball collides with paddle 
+            if (newBall.x + newBall.dx > canvas.width - newBall.radius || newBall.x + newBall.dx < newBall.radius) {
+                newBall.dx = -newBall.dx;
+            }
+
+            if (newBall.y + newBall.dy < newBall.radius) {
+                newBall.dy = -newBall.dy;
+            }
+            
+            else if (newBall.y + newBall.dy > canvas.height - newBall.radius) { 
+                // off bottom of screen
+                console.log(newBall.x, newPaddle.x, newBall.x, newPaddle.x, newPaddle.width)
+                
+                // index.html:321 316 263.5 240 263.5 75
+                // index.html:324 ---- Hit paddle ----
+                // index.html:321 128 84.5 240 84.5 75
+                // index.html:331 ---- Off screen ----
+
+                if (newBall.x > newPaddle.x && newBall.x < newPaddle.x + newPaddle.width) { 
+                    console.log('---- Hit paddle ----')
+
+                    // ball between left and right of paddle 
+                    newBall.dy = -newBall.dy // deflect ball 
                     newBall.color = getRandomColor();
-                    ctx.fill();
+                    ctx.fill(); // ???? possibly not needed
                 } else {
+                    console.log('---- Off screen ----')
+
+                    // reset ball and paddle lose life
                     newLives.lives -= 1;
                     // if (!newLives.lives) {
                     //     // alert("GAME OVER");
@@ -314,15 +347,15 @@
                     newBall.dy = -2;
                     paddleX = (canvas.width - newPaddle.width) / 2;
                     // }
-
                 }
             }
 
-            if (rightPressed && paddleX < canvas.width - newPaddle.width) {
-                paddleX += 7;
-            } else if (leftPressed && paddleX > 0) {
-                paddleX -= 7;
+            if (rightPressed && newPaddle.x < canvas.width - newPaddle.width) {
+                newPaddle.x += 7;
+            } else if (leftPressed && newPaddle.x > 0) {
+                newPaddle.x -= 7;
             }
+
             requestAnimationFrame(draw);
         }
 
