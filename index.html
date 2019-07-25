@@ -47,17 +47,6 @@
             move() {
                 this.x += this.dx
                 this.y += this.dy
-                // if (this.y + this.dy < this.radius) {
-                //     this.dy = -this.dy;
-                //     this.color = getRandomColor();
-                //     ctx.fill(); // ????
-                // }
-                // if (this.x + this.dx < this.radius || this.x + this.dx > canvas.width - this
-                //     .radius) {
-                //     this.dx = -this.dx;
-                //     this.color = getRandomColor();
-                //     ctx.fill(); // ????
-                // }
             }
         }
 
@@ -127,7 +116,6 @@
 
             render(ctx) {
                 ctx.fillStyle = this.color;
-                // ctx.fill();
             }
         }
 
@@ -165,19 +153,7 @@
                 ctx.fillText("Lives: " + this.lives, canvas.width - 65, 20);
             }
             loseLife() {
-                // if (newBall.y + newBall.dy > canvas.height - newBall.radius) {
-                //     this.lives -= 1;
-                    // if (!newLives.lives) {
-                    //     // alert("GAME OVER");
-                    //     document.location.reload();
-                    // } else {
-                    // newBall.x = canvas.width / 2;
-                    // newBall.y = canvas.height - 30;
-                    // newBall.dx = 2;
-                    // newBall.dy = -2;
-                    // paddleX = (canvas.width - newPaddle.width) / 2;
-                    // }
-                // }
+   
             }
             reset() {
                 if (!this.lives) {
@@ -257,7 +233,6 @@
             return color;
         }
 
-        // TODO: there's a bug where your ball will go through the paddle after seemingly 3 hits?
         function collisionDetection() {
             for (let c = 0; c < brickColumnCount; c += 1) {
                 for (let r = 0; r < brickRowCount; r += 1) {
@@ -293,19 +268,13 @@
             newScore.update();
             newScore.render(ctx);
             
-            newScore.reset(); // ????
+            newScore.reset(); // for when you win the game. Reset
 
-            collisionDetection(); // ball colliudes with bricks
+            collisionDetection(); // ball collides with bricks
 
             newLives.loseLife();
             newLives.render(ctx);
-            newLives.reset(); // ????
-
-            // is the ball wifthin the left and right as well as height of the paddle 
-            // and below the top of the paddle and above the bottom of the paddle 
-                // deflect the ball 
-            // else is the ball below the bottom of the screen?
-                // lose a life 
+            newLives.reset(); // for when you lose the game. Reset
 
             // ball collides with paddle 
             if (newBall.x + newBall.dx > canvas.width - newBall.radius || newBall.x + newBall.dx < newBall.radius) {
@@ -318,35 +287,21 @@
             
             else if (newBall.y + newBall.dy > canvas.height - newBall.radius) { 
                 // off bottom of screen
-                console.log(newBall.x, newPaddle.x, newBall.x, newPaddle.x, newPaddle.width)
-                
-                // index.html:321 316 263.5 240 263.5 75
-                // index.html:324 ---- Hit paddle ----
-                // index.html:321 128 84.5 240 84.5 75
-                // index.html:331 ---- Off screen ----
-
                 if (newBall.x > newPaddle.x && newBall.x < newPaddle.x + newPaddle.width) { 
                     console.log('---- Hit paddle ----')
-
                     // ball between left and right of paddle 
                     newBall.dy = -newBall.dy // deflect ball 
                     newBall.color = getRandomColor();
                     ctx.fill(); // ???? possibly not needed
                 } else {
                     console.log('---- Off screen ----')
-
                     // reset ball and paddle lose life
                     newLives.lives -= 1;
-                    // if (!newLives.lives) {
-                    //     // alert("GAME OVER");
-                    //     document.location.reload();
-                    // } else {
                     newBall.x = canvas.width / 2;
                     newBall.y = canvas.height - 30;
                     newBall.dx = 2;
                     newBall.dy = -2;
                     paddleX = (canvas.width - newPaddle.width) / 2;
-                    // }
                 }
             }
 
